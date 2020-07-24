@@ -1,5 +1,5 @@
 import React, { Component} from "react";
-import {ScrollView,StyleSheet} from 'react-native';
+import {ScrollView,StyleSheet,AsyncStorage} from 'react-native';
 import { FlatList, Keyboard, Text, TextInput, TouchableOpacity,TouchableHighlight, View } from 'react-native';
 import { firebase } from '../../firebase/config'
 import { Button } from "react-native-elements";
@@ -14,7 +14,13 @@ export default class RDV extends Component {
 
     }
 
-    componentDidMount(){
+    async loadrdvs()
+    {
+         alert("Reading users")
+        let pseudo = await AsyncStorage.getItem('userPseudo');
+        let mail= await AsyncStorage.getItem('userMail');
+        alert("Reading users"+mail)
+
         rdvs
         .orderBy('salon.name', 'desc')
         .onSnapshot(
@@ -24,14 +30,19 @@ export default class RDV extends Component {
                     const entity = doc.data()
                     console.log(entity);
                     entity.id = doc.id
+                    if(entity.user && entity.user.name && entity.user.name==mail)
                     newEntities.push(entity)
                 });
                 this.setEntities(newEntities)
             },
             error => {
                 console.log(error)
+                alert(error);
             }
         )
+    }
+    componentDidMount(){
+        this.loadrdvs();
     }
     setEntities(newEntities){
         this.setState({FlatListItems:newEntities})

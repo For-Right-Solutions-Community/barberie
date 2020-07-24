@@ -1,6 +1,6 @@
 import React, { Component} from "react";
 import {ScrollView,StyleSheet} from 'react-native';
-import { FlatList, Keyboard, Text, TextInput, TouchableOpacity,TouchableHighlight, View } from 'react-native';
+import { FlatList, Keyboard, Text, TextInput, TouchableOpacity,TouchableHighlight, View ,AsyncStorage} from 'react-native';
 import { firebase } from '../../firebase/config'
 import { Button } from "react-native-elements";
 import CalendarPicker from 'react-native-calendar-picker';
@@ -11,12 +11,23 @@ export default class SalonsScreens extends Component {
         super(props);
         this.state = ({
             //FlatListItems: [{name:'Patrick star'},{name:'Gallileo'},{name:'Einsten'},{name:'Peterson'},{name:'Schwarzenneger'},{name:'Dostoyevsky'}]
-            FlatListItems: []
+            FlatListItems: [],
+            pseudo:'',
+            mail:''
     });
-
+      
     }
 
+    async setuser(){
+    
+        //alert("Reading users")
+        let pseudo = await AsyncStorage.getItem('userPseudo');
+        let mail= await AsyncStorage.getItem('userMail');
+        //alert("Reading users"+mail)
+        this.setState({pseudo:pseudo,mail:mail})    
+    }
     componentDidMount(){
+        this.setuser();
         entityRef
         .orderBy('Date_insertion', 'desc')
         .onSnapshot(
@@ -67,7 +78,7 @@ export default class SalonsScreens extends Component {
                         {item.name}
                         </Text>
                         <CalendarPicker  onDateChange={(date)=>{item.date=date}} />
-                        <TouchableOpacity style={styles.button}  onPress={() => {this.prendrerndezvous(item,{"name":'Maher'});}} >                        
+                        <TouchableOpacity style={styles.button}  onPress={() => {this.prendrerndezvous(item,{"name":this.state.mail,"mail":this.state.mail});}} >                        
                         <Text style={styles.buttonText} >Prendre un RDV </Text>
                         </TouchableOpacity>
 
